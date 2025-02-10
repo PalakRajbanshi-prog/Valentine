@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Be My Valentine? 💖</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        body {
+            background: linear-gradient(to right, #ff758c, #ff7eb3);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+        .container {
+            text-align: center;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+        }
+        h1 {
+            color: #d6004f;
+            font-size: 2rem;
+        }
+        .buttons {
+            margin-top: 20px;
+            position: relative;
+        }
+        button {
+            font-size: 1.2rem;
+            padding: 10px 20px;
+            margin: 10px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        #yes {
+            background: #ff3366;
+            color: white;
+        }
+        #yes:hover {
+            background: #ff0044;
+        }
+        #no {
+            background: #ccc;
+            color: black;
+            position: absolute;
+        }
+        #no:hover {
+            background: #aaa;
+        }
+        .hidden {
+            display: none;
+        }
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="valentineCanvas"></canvas>
+
+    <div class="container" id="questionBox">
+        <h1>Will you be my Valentine? 💘</h1>
+        <div class="buttons">
+            <button id="yes">Yes 💖</button>
+            <button id="no">No ❌</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById("valentineCanvas");
+        const ctx = canvas.getContext("2d");
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const hearts = [];
+        let noButton = document.getElementById("no");
+
+        class Heart {
+            constructor(x, y, size, speed, opacity) {
+                this.x = x;
+                this.y = y;
+                this.size = size;
+                this.speed = speed;
+                this.opacity = opacity;
+                this.angle = Math.random() * Math.PI * 2;
+            }
+
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.opacity;
+                ctx.fillStyle = "#ff3366";
+                ctx.beginPath();
+                const x = this.x;
+                const y = this.y;
+                const s = this.size;
+                ctx.moveTo(x, y);
+                ctx.bezierCurveTo(x + s / 2, y - s / 2, x + s, y + s / 3, x, y + s);
+                ctx.bezierCurveTo(x - s, y + s / 3, x - s / 2, y - s / 2, x, y);
+                ctx.fill();
+                ctx.restore();
+            }
+
+            update() {
+                this.y -= this.speed;
+                this.x += Math.sin(this.angle) * 0.5;
+                this.opacity -= 0.003;
+
+                if (this.opacity <= 0) {
+                    hearts.splice(hearts.indexOf(this), 1);
+                }
+            }
+        }
+
+        function createHeart(x, y) {
+            const size = Math.random() * 20 + 10;
+            const speed = Math.random() * 1 + 0.5;
+            const opacity = Math.random() * 0.5 + 0.5;
+            hearts.push(new Heart(x, y, size, speed, opacity));
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            hearts.forEach(heart => {
+                heart.update();
+                heart.draw();
+            });
+            requestAnimationFrame(animate);
+        }
+
+        setInterval(() => createHeart(Math.random() * canvas.width, canvas.height), 200);
+        animate();
+
+        window.addEventListener("resize", () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        // 😍 When "Yes" is clicked
+        document.getElementById("yes").addEventListener("click", () => {
+            document.getElementById("questionBox").innerHTML = 
+                `<h1>Yay! ❤️ I love you! 😘</h1>`;
+            for (let i = 0; i < 50; i++) {
+                createHeart(Math.random() * canvas.width, Math.random() * canvas.height);
+            }
+            playMusic();
+        });
+
+        // 😆 "No" button moves away
+        document.getElementById("no").addEventListener("mouseover", (event) => {
+            let x = Math.random() * (window.innerWidth - 100);
+            let y = Math.random() * (window.innerHeight - 50);
+            noButton.style.left = `${x}px`;
+            noButton.style.top = `${y}px`;
+        });
+
+        // 🎵 Play cute sound
+        let audio = new Audio("https://www.soundjay.com/button/beep-07.mp3");
+        function playMusic() {
+            audio.play().catch(error => console.log("Music autoplay blocked:", error));
+        }
+    </script>
+
+</body>
+</html>
+
+
